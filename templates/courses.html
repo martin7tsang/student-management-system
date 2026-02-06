@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}课程管理 - 学生管理系统{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h2><i class="bi bi-book me-3"></i>课程管理</h2>
+            <p class="mb-0">管理课程信息、设置学分、分配教师</p>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="{{ url_for('add_course') }}" class="btn btn-light btn-lg">
+                <i class="bi bi-journal-plus me-2"></i>添加课程
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>课程代码</th>
+                        <th>课程名称</th>
+                        <th>学分</th>
+                        <th>授课教师</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses.items %}
+                    <tr>
+                        <td><strong>{{ course.course_code }}</strong></td>
+                        <td>{{ course.name }}</td>
+                        <td><span class="badge bg-info">{{ course.credits }} 学分</span></td>
+                        <td>{{ course.teacher or '-' }}</td>
+                        <td>
+                            <a href="{{ url_for('edit_course', id=course.id) }}" class="btn btn-sm btn-warning action-btn" title="编辑">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{{ url_for('delete_course', id=course.id) }}" class="btn btn-sm btn-danger action-btn" title="删除" onclick="return confirm('确定要删除该课程吗？')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                            暂无课程数据
+                            <br>
+                            <a href="{{ url_for('add_course') }}" class="btn btn-primary mt-3">添加第一个课程</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

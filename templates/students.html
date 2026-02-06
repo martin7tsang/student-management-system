@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}学生管理 - 学生管理系统{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h2><i class="bi bi-people me-3"></i>学生管理</h2>
+            <p class="mb-0">管理学生信息、查看成绩、维护学生档案</p>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="{{ url_for('add_student') }}" class="btn btn-light btn-lg">
+                <i class="bi bi-person-plus me-2"></i>添加学生
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 搜索 -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('students') }}">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" class="form-control" name="search" value="{{ search }}" placeholder="搜索学号或姓名...">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-2"></i>搜索
+                    </button>
+                    {% if search %}
+                    <a href="{{ url_for('students') }}" class="btn btn-outline-secondary ms-2">清除</a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 学生列表 -->
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>学号</th>
+                        <th>姓名</th>
+                        <th>性别</th>
+                        <th>年龄</th>
+                        <th>联系方式</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students.items %}
+                    <tr>
+                        <td><strong>{{ student.student_id }}</strong></td>
+                        <td>{{ student.name }}</td>
+                        <td>
+                            {% if student.gender == '男' %}
+                                <span class="badge bg-primary"><i class="bi bi-gender-male me-1"></i>男</span>
+                            {% elif student.gender == '女' %}
+                                <span class="badge bg-danger"><i class="bi bi-gender-female me-1"></i>女</span>
+                            {% else %}
+                                <span class="badge bg-secondary">-</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ student.age or '-' }}</td>
+                        <td>
+                            {% if student.phone %}
+                                <small><i class="bi bi-telephone me-1"></i>{{ student.phone }}</small><br>
+                            {% endif %}
+                            {% if student.email %}
+                                <small><i class="bi bi-envelope me-1"></i>{{ student.email }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('student_grades', id=student.id) }}" class="btn btn-sm btn-info action-btn" title="查看成绩">
+                                <i class="bi bi-clipboard-data"></i>
+                            </a>
+                            <a href="{{ url_for('edit_student', id=student.id) }}" class="btn btn-sm btn-warning action-btn" title="编辑">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{{ url_for('delete_student', id=student.id) }}" class="btn btn-sm btn-danger action-btn" title="删除" onclick="return confirm('确定要删除该学生吗？')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                            暂无学生数据
+                            <br>
+                            <a href="{{ url_for('add_student') }}" class="btn btn-primary mt-3">添加第一个学生</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 分页 -->
+    {% if students.pages > 1 %}
+    <div class="card-footer">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mb-0">
+                {% if students.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('students', page=students.prev_num, search=search) }}">上一页</a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in students.iter_pages(left_edge=2, left_current=2, right_current=2, right_edge=2) %}
+                    {% if page_num %}
+                        {% if page_num == students.page %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('students', page=page_num, search=search) }}">{{ page_num }}</a>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if students.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('students', page=students.next_num, search=search) }}">下一页</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

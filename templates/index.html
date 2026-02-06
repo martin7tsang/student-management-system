@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block title %}首页 - 学生管理系统{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h2><i class="bi bi-speedometer2 me-3"></i>仪表板</h2>
+            <p class="mb-0">欢迎回来，{{ current_user.username }}！这是系统的概览信息。</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <span class="badge bg-light text-dark fs-6">
+                <i class="bi bi-calendar3 me-2"></i>{{ now().strftime('%Y年%m月%d日') if now else '今日' }}
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- 统计卡片 -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card stat-card students h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 opacity-75">学生总数</h6>
+                        <h2 class="card-title mb-0">{{ total_students }}</h2>
+                    </div>
+                    <div class="fs-1 opacity-50">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+                <a href="{{ url_for('students') }}" class="btn btn-light btn-sm mt-3">
+                    <i class="bi bi-arrow-right me-1"></i>查看详情
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card stat-card courses h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 opacity-75">课程总数</h6>
+                        <h2 class="card-title mb-0">{{ total_courses }}</h2>
+                    </div>
+                    <div class="fs-1 opacity-50">
+                        <i class="bi bi-book-fill"></i>
+                    </div>
+                </div>
+                <a href="{{ url_for('courses') }}" class="btn btn-light btn-sm mt-3">
+                    <i class="bi bi-arrow-right me-1"></i>查看详情
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card stat-card grades h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2 opacity-75">成绩记录</h6>
+                        <h2 class="card-title mb-0">{{ total_grades }}</h2>
+                    </div>
+                    <div class="fs-1 opacity-50">
+                        <i class="bi bi-clipboard-data-fill"></i>
+                    </div>
+                </div>
+                <a href="{{ url_for('grades') }}" class="btn btn-light btn-sm mt-3">
+                    <i class="bi bi-arrow-right me-1"></i>查看详情
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 快捷操作 -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-lightning-charge me-2"></i>快捷操作</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ url_for('add_student') }}" class="btn btn-outline-primary w-100 py-3">
+                            <i class="bi bi-person-plus fs-4 d-block mb-2"></i>
+                            添加学生
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ url_for('add_course') }}" class="btn btn-outline-info w-100 py-3">
+                            <i class="bi bi-journal-plus fs-4 d-block mb-2"></i>
+                            添加课程
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ url_for('add_grade') }}" class="btn btn-outline-success w-100 py-3">
+                            <i class="bi bi-file-earmark-plus fs-4 d-block mb-2"></i>
+                            录入成绩
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 最近添加的学生 -->
+        <div class="card mt-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>最近添加的学生</h5>
+                <a href="{{ url_for('students') }}" class="btn btn-sm btn-outline-primary">查看全部</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>学号</th>
+                                <th>姓名</th>
+                                <th>性别</th>
+                                <th>添加时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in recent_students %}
+                            <tr>
+                                <td>{{ student.student_id }}</td>
+                                <td>{{ student.name }}</td>
+                                <td>
+                                    {% if student.gender == '男' %}
+                                        <span class="badge bg-primary"><i class="bi bi-gender-male"></i></span>
+                                    {% elif student.gender == '女' %}
+                                        <span class="badge bg-danger"><i class="bi bi-gender-female"></i></span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ student.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <a href="{{ url_for('student_grades', id=student.id) }}" class="btn btn-sm btn-info">
+                                        <i class="bi bi-clipboard-data"></i> 成绩
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">暂无学生数据</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>系统信息</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        系统版本
+                        <span class="badge bg-primary rounded-pill">v1.0</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        开发框架
+                        <span class="badge bg-info rounded-pill">Flask</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        数据库
+                        <span class="badge bg-success rounded-pill">SQLite</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        前端框架
+                        <span class="badge bg-warning text-dark rounded-pill">Bootstrap 5</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
